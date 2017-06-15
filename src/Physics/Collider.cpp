@@ -93,7 +93,9 @@ bool Collider::SphereToAabb(SphereCollider *colA, AABBCollider *colB, IntersectD
 
 	if (isIntersecting) {
 		if (data != nullptr) {
-			
+			glm::vec3 collisionNormal = glm::normalize(colB->GetPosition() - colA->GetPosition());
+			float overlap = (colA->GetRadius() * colA->GetRadius()) - sq;
+			data->collisionVec = collisionNormal * overlap;
 		}
 	}
 
