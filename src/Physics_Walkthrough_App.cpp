@@ -140,9 +140,9 @@ void Physics_Walkthrough_App::SetupScene2() {
 
 	//Sphere
 	Physics::IPhysicsObject *obj = new Physics::IPhysicsObject();
-	obj->SetPosition(glm::vec3(-3, 0, 0));
+	obj->SetPosition(glm::vec3(-5, 0, 0));
 	obj->SetFriction((20.0f / (rand() % 100 + 1)));
-	obj->SetCollider(new Physics::SphereCollider(0.25f));
+	obj->SetCollider(new Physics::SphereCollider(3));
 
 	m_sceneRenderer->GetRenderInfo(obj)->color = glm::vec4(
 		rand() % 255 / 255.f,
