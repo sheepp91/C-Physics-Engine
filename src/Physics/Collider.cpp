@@ -60,61 +60,44 @@ bool Collider::SphereToSphere(SphereCollider *colA, SphereCollider *colB, Inters
 
 
 bool Collider::SphereToAabb(SphereCollider *colA, AABBCollider *colB, IntersectData *data) {
-	glm::vec3 minA = colA->GetPosition() - colA->GetRadius();
-	glm::vec3 maxA = colA->GetPosition() + colA->GetRadius();
+	glm::vec3 spherePos = colA->GetPosition();
 	glm::vec3 minB = colB->GetPosition() - colB->GetDimensions();
 	glm::vec3 maxB = colB->GetPosition() + colB->GetDimensions();
 
-	bool isIntersecting = (
-		(minA.x < maxB.x && maxA.x > minB.x) &&
-		(minA.y < maxB.y && maxA.y > minB.y) &&
-		(minA.z < maxB.z && maxA.z > minB.z));
+	auto check = [&](
+		const double pn,
+		const double bmin,
+		const double bmax) -> double {
+		double out = 0;
+
+		if (pn < bmin) {
+			double val = (bmin - pn);
+			out += val * val;
+		}
+
+		if (pn > bmax) {
+			double val = (pn - bmax);
+			out += val * val;
+		}
+
+		return out;
+	};
+
+	// Squared distance
+	double sq = 0.0;
+	sq += check(spherePos.x, minB.x, maxB.x);
+	sq += check(spherePos.y, minB.y, maxB.y);
+	sq += check(spherePos.z, minB.z, maxB.z);
+
+	bool isIntersecting = (sq <= (colA->GetRadius() * colA->GetRadius()));
 
 	if (isIntersecting) {
-		printf("collision\n");
 		if (data != nullptr) {
-			glm::vec3 min(glm::max(minA.x, minB.x), glm::max(minA.y, minB.y), glm::max(minA.z, minB.z));
-			glm::vec3 max(glm::min(maxA.x, maxB.x), glm::min(maxA.y, maxB.y), glm::min(maxA.z, maxB.z));
-
-			glm::vec3 overlap = max - min;
-
-			data->collisionVec = glm::vec3(0, 0, 0);
-			if (overlap.x < overlap.y && overlap.x < overlap.z) data->collisionVec.x = overlap.x;
-			else if (overlap.y < overlap.x && overlap.y < overlap.z) data->collisionVec.y = overlap.y;
-			else if (overlap.z < overlap.x && overlap.z < overlap.y) data->collisionVec.z = overlap.z;
-
-			// correct the sign
-			glm::vec3 normal = glm::normalize(data->collisionVec);
-			glm::vec3 posA = colA->GetPosition() * normal;
-			glm::vec3 posB = colB->GetPosition() * normal;
-			glm::vec3 correction = glm::normalize(posB - posA);
-			data->collisionVec *= correction;
+			
 		}
 	}
-	return isIntersecting;
 
-	//glm::vec3 vDistance = colB->GetPosition() - colA->GetPosition();
-	//float distance = glm::length(vDistance);
-	//
-	//glm::vec3 minB = colB->GetPosition() - colB->GetDimensions();
-	//glm::vec3 maxB = colB->GetPosition() + colB->GetDimensions();
-	//
-	//if (distance < minXDistance || distance < minYDistance || distance < minZDistance) {
-	//	if (data != nullptr) {
-	//		// objA is intersecting with objB
-	//		glm::vec3 collisionNormal = glm::normalize(vDistance);
-	//		float overlapX = minXDistance - distance;
-	//		float overlapY = minYDistance - distance;
-	//		float overlapZ = minZDistance - distance;
-	//		data->collisionVec = glm::vec3(
-	//			collisionNormal.x * overlapX,
-	//			collisionNormal.y * overlapY,
-	//			collisionNormal.z * overlapZ
-	//		);
-	//	}
-	//}
-	//
-	//return glm::abs(distance) < minXDistance || glm::abs(distance) < minYDistance || glm::abs(distance) < minZDistance;
+	return isIntersecting;
 }
 
 bool Collider::AabbToAabb(AABBCollider *colA, AABBCollider *colB, IntersectData *data) {
