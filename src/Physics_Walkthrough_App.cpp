@@ -46,7 +46,7 @@ bool Physics_Walkthrough_App::startup()
 	//--------------------------------------------------
 	
 
-	SetupScene2();
+	SetupScene4();
 
 	return true;
 }
